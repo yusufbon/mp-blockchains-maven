@@ -52,6 +52,16 @@ public class Hash {
   } // get()
 
   /**
+   * Get a copy of the bytes in the hash. We make a copy so that the client
+   * cannot change them.
+   *
+   * @return a copy of the bytes in the hash.
+   */
+  public byte[] getBytes() {
+    return new byte[] {1,2,3,4,5};      // STUB
+  } // getBytes()
+
+  /**
    * Convert to a hex string.
    *
    * @return the hash as a hex string.
@@ -65,6 +75,9 @@ public class Hash {
    *
    * @param other
    *   The object to compare to.
+   *
+   * @return true if the two objects are conceptually equal and false 
+   *   otherwise.
    */
   public boolean equals(Object other) {
     return false;       // STUB
