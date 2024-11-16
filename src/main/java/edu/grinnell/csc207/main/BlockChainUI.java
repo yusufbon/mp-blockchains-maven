@@ -17,6 +17,9 @@ public class BlockChainUI {
 
   /**
    * Print out the instructions.
+   *
+   * @param pen
+   *   The pen used for printing instructions.
    */
   public static void instructions(PrintWriter pen) {
     pen.println("""

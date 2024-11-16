@@ -38,7 +38,7 @@ public class Transaction {
    *   The source of the transaction (or empty for a deposit).
    * @param tgt
    *   The person receiving the transaction.
-   * @int amt
+   * @param amt
    *   The funds transfered.
    */
   public Transaction(String src, String tgt, int amt) {

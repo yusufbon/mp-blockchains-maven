@@ -19,6 +19,15 @@ class Block {
    * Create a new block from the specified block number, transaction, and
    * previous hash, mining to choose a nonce that meets the requirements
    * of the validator.
+   *
+   * @param num
+   *   The number of the block.
+   * @param transaction
+   *   The transaction for the block.
+   * @param prevHash
+   *   The hash of the previous block.
+   * @param check
+   *   The validator used to check the block.
    */
   Block(int num, Transaction transaction, Hash prevHash, HashValidator check) {
     // STUB
@@ -26,6 +35,15 @@ class Block {
 
   /**
    * Create a new block, computing the hash for the block.
+   *
+   * @param num
+   *   The number of the block.
+   * @param transaction
+   *   The transaction for the block.
+   * @param prevHash
+   *   The hash of the previous block.
+   * @param nonce
+   *   The nonce of the block.
    */
   Block(int num, Transaction transaction, Hash prevHash, long nonce) {
     // STUB
@@ -80,7 +98,7 @@ class Block {
    * @return the hash of the previous block.
    */
   Hash getPrevHash() {
-    return new Hash(new byte[] { 0 });  // STUB
+    return new Hash(new byte[] {0});  // STUB
   } // getPrevHash
 
   /**
@@ -89,7 +107,7 @@ class Block {
    * @return the hash of the current block.
    */
   Hash getHash() {
-    return new Hash(new byte[] { 0 });  // STUB
+    return new Hash(new byte[] {0});  // STUB
   } // getHash
 
   /**

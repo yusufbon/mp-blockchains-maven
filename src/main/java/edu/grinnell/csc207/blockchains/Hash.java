@@ -58,7 +58,7 @@ public class Hash {
    * @return a copy of the bytes in the hash.
    */
   public byte[] getBytes() {
-    return new byte[] {1,2,3,4,5};      // STUB
+    return new byte[] {1, 2, 3, 4, 5};      // STUB
   } // getBytes()
 
   /**
@@ -76,7 +76,7 @@ public class Hash {
    * @param other
    *   The object to compare to.
    *
-   * @return true if the two objects are conceptually equal and false 
+   * @return true if the two objects are conceptually equal and false
    *   otherwise.
    */
   public boolean equals(Object other) {
