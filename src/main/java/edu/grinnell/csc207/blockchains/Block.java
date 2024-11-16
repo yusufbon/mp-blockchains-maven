@@ -15,6 +15,22 @@ class Block {
   // | Constructors |
   // +--------------+
 
+  /**
+   * Create a new block from the specified block number, transaction, and
+   * previous hash, mining to choose a nonce that meets the requirements
+   * of the validator.
+   */
+  Block(int num, Transaction transaction, Hash prevHash, HashValidator check) {
+    // STUB
+  } // Block(int, Transaction, Hash, HashValidator)
+
+  /**
+   * Create a new block, computing the hash for the block.
+   */
+  Block(int num, Transaction transaction, Hash prevHash, long nonce) {
+    // STUB
+  } // Block(int, Transaction, Hash, long)
+
   // +---------+-----------------------------------------------------
   // | Helpers |
   // +---------+
