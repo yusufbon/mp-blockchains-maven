@@ -1,9 +1,10 @@
 package edu.grinnell.csc207.blockchains;
 
 /**
- * Enccapsulated hashes.
+ * Encapsulated hashes.
  *
  * @author Your Name Here
+ * @author Samuel A. Rebelsky
  */
 public class Hash {
   // +--------+------------------------------------------------------
@@ -68,4 +69,13 @@ public class Hash {
   public boolean equals(Object other) {
     return false;       // STUB
   } // equals(Object)
+
+  /**
+   * Get the hash code of this object.
+   *
+   * @return the hash code.
+   */
+  public int hashCode() {
+    return this.toString().hashCode();
+  } // hashCode()
 } // class Hash
