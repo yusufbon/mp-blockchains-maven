@@ -125,7 +125,7 @@ public class BlockChain implements Iterable<Transaction> {
    *
    * @return that user's balance (or 0, if the user is not in the system).
    */
-  public int balance() {
+  public int balance(String user) {
     return 0;   // STUB
   } // balance()
 
