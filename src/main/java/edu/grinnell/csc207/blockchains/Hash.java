@@ -34,7 +34,7 @@ public class Hash {
    *
    * @return the number of bytes in the hash.
    */
-  int length() {
+  public int length() {
     return 0;   // STUB
   } // length()
 
