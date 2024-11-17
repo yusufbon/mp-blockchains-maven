@@ -29,7 +29,7 @@ public class Block {
    * @param check
    *   The validator used to check the block.
    */
-  public Block(int num, Transaction transaction, Hash prevHash, 
+  public Block(int num, Transaction transaction, Hash prevHash,
       HashValidator check) {
     // STUB
   } // Block(int, Transaction, Hash, HashValidator)
