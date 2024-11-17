@@ -6,7 +6,7 @@ package edu.grinnell.csc207.blockchains;
  * @author Your Name Here
  * @author Samuel A. Rebelsky
  */
-class Block {
+public class Block {
   // +--------+------------------------------------------------------
   // | Fields |
   // +--------+
@@ -57,7 +57,7 @@ class Block {
    * Compute the hash of the block given all the other info already
    * stored in the block.
    */
-  void computeHash() {
+  static void computeHash() {
     // STUB
   } // computeHash()
 
@@ -70,7 +70,7 @@ class Block {
    *
    * @return the number of the block.
    */
-  int getNum() {
+  public int getNum() {
     return 0;   // STUB
   } // getNum()
 
@@ -79,7 +79,7 @@ class Block {
    *
    * @return the transaction.
    */
-  Transaction getTransaction() {
+  public Transaction getTransaction() {
     return new Transaction("Here", "There", 0); // STUB
   } // getTransaction()
 
@@ -88,7 +88,7 @@ class Block {
    *
    * @return the nonce.
    */
-  long getNonce() {
+  public long getNonce() {
     return 0;   // STUB
   } // getNonce()
 
