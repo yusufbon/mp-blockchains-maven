@@ -29,7 +29,8 @@ public class Block {
    * @param check
    *   The validator used to check the block.
    */
-  Block(int num, Transaction transaction, Hash prevHash, HashValidator check) {
+  public Block(int num, Transaction transaction, Hash prevHash, 
+      HashValidator check) {
     // STUB
   } // Block(int, Transaction, Hash, HashValidator)
 
@@ -45,7 +46,7 @@ public class Block {
    * @param nonce
    *   The nonce of the block.
    */
-  Block(int num, Transaction transaction, Hash prevHash, long nonce) {
+  public Block(int num, Transaction transaction, Hash prevHash, long nonce) {
     // STUB
   } // Block(int, Transaction, Hash, long)
 
