@@ -15,5 +15,9 @@ public interface HashValidator {
    * @return true if the hash is valid and false otehrwise.
    */
   boolean isValid(Hash hash);
+  HashValidator simpleValidator = 
+    (hash) -> (hash.length() >= 1) && (hash.get(0) == 0);
+  
+
 
 } // interface HashValidator
