@@ -1,15 +1,27 @@
 package edu.grinnell.csc207.blockchains;
 
+import java.io.ByteArrayInputStream;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 /**
  * Blocks to be stored in blockchains.
  *
- * @author Your Name Here
+ * @author Mina Bakrac
  * @author Samuel A. Rebelsky
  */
 public class Block {
   // +--------+------------------------------------------------------
   // | Fields |
   // +--------+
+
+  int numInChain;
+  Transaction tran;
+  Hash hPrev;
+  long nonce; //(needs a mine method to create. check q&a.)
+  Hash hCurr;
+
 
   // +--------------+------------------------------------------------
   // | Constructors |
@@ -31,7 +43,10 @@ public class Block {
    */
   public Block(int num, Transaction transaction, Hash prevHash,
       HashValidator check) {
-    // STUB
+    this.numInChain = num;
+    this.tran = transaction;
+    this.hPrev = prevHash;
+    this.nonce = mine(check); // mine for nonce here.
   } // Block(int, Transaction, Hash, HashValidator)
 
   /**
@@ -47,7 +62,7 @@ public class Block {
    *   The nonce of the block.
    */
   public Block(int num, Transaction transaction, Hash prevHash, long nonce) {
-    // STUB
+    //STUB
   } // Block(int, Transaction, Hash, long)
 
   // +---------+-----------------------------------------------------
@@ -58,8 +73,20 @@ public class Block {
    * Compute the hash of the block given all the other info already
    * stored in the block.
    */
-  static void computeHash() {
-    // STUB
+  public byte[] computeHash() throws NoSuchAlgorithmException{
+    MessageDigest md = MessageDigest.getInstance("sha-256");
+    // Add number in chain.
+    byte[] numInChainbytes = ByteBuffer.allocate(Integer.BYTES).putInt(this.numInChain).array();
+    md.update(numInChainbytes);
+    // Add data.
+    // UNIMPLEMENTED (stuck on this)
+    //
+    // Add previous hash.
+    md.update(hPrev);
+    // Add nonce.
+    byte[] noncebytes = ByteBuffer.allocate(Long.BYTES).putLong(this.nonce).array();
+    byte[] hash = md.digest();
+    return hash;
   } // computeHash()
 
   // +---------+-----------------------------------------------------
@@ -72,7 +99,7 @@ public class Block {
    * @return the number of the block.
    */
   public int getNum() {
-    return 0;   // STUB
+    return this.numInChain;
   } // getNum()
 
   /**
@@ -90,7 +117,7 @@ public class Block {
    * @return the nonce.
    */
   public long getNonce() {
-    return 0;   // STUB
+    return this.nonce;
   } // getNonce()
 
   /**
@@ -99,7 +126,7 @@ public class Block {
    * @return the hash of the previous block.
    */
   Hash getPrevHash() {
-    return new Hash(new byte[] {0});  // STUB
+    return this.hPrev;
   } // getPrevHash
 
   /**
@@ -108,7 +135,7 @@ public class Block {
    * @return the hash of the current block.
    */
   Hash getHash() {
-    return new Hash(new byte[] {0});  // STUB
+    return hCurr;
   } // getHash
 
   /**
@@ -119,4 +146,14 @@ public class Block {
   public String toString() {
     return "";  // STUB
   } // toString()
+
+  public long mine(HashValidator check) {
+    for (long nonce = 0; nonce < Long.MAX_VALUE; nonce++) {
+      computeHash();
+      if (HashValidator.isValid(this.hCurr) == true) {
+        return nonce;
+      } // if
+    } // for
+  } // mine(HashValidator)
+
 } // class Block
