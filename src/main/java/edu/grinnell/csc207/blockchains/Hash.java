@@ -16,6 +16,10 @@ public class Hash {
   /** The internal representation of the hash as a byte array. */
   private final byte[] data;
 
+  // simple hash validator
+  HashValidator simpleValidator =
+    (hash) -> (hash.length() >= 1) && (hash.get(0) == 0);
+
   // +--------------+------------------------------------------------
   // | Constructors |
   // +--------------+
