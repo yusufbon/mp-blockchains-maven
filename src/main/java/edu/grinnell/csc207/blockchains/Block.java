@@ -1,6 +1,5 @@
 package edu.grinnell.csc207.blockchains;
 
-import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -21,7 +20,6 @@ public class Block {
   Hash hPrev;
   long nonce; //(needs a mine method to create. check q&a.)
   Hash hCurr;
-
 
   // +--------------+------------------------------------------------
   // | Constructors |
@@ -45,7 +43,11 @@ public class Block {
       HashValidator check) {
     this.numInChain = num;
     this.tran = transaction;
-    this.hPrev = prevHash;
+    if (numInChain == 0) {
+      this.hPrev = null;
+    } else {
+      this.hPrev = prevHash;
+    } // if/else
     this.nonce = mine(check); // mine for nonce here.
   } // Block(int, Transaction, Hash, HashValidator)
 
@@ -62,7 +64,15 @@ public class Block {
    *   The nonce of the block.
    */
   public Block(int num, Transaction transaction, Hash prevHash, long nonce) {
-    //STUB
+    this.numInChain = num;
+    this.tran = transaction;
+    if (numInChain == 0) {
+      this.hPrev = null;
+    } else {
+      this.hPrev = prevHash;
+    } // if/else
+    this.nonce = nonce;
+    this.hCurr = new Hash(computeHash(this.nonce));
   } // Block(int, Transaction, Hash, long)
 
   // +---------+-----------------------------------------------------
@@ -73,21 +83,31 @@ public class Block {
    * Compute the hash of the block given all the other info already
    * stored in the block.
    */
-  public byte[] computeHash() throws NoSuchAlgorithmException{
-    MessageDigest md = MessageDigest.getInstance("sha-256");
-    // Add number in chain.
-    byte[] numInChainbytes = ByteBuffer.allocate(Integer.BYTES).putInt(this.numInChain).array();
-    md.update(numInChainbytes);
-    // Add data.
-    // UNIMPLEMENTED (stuck on this)
-    //
-    // Add previous hash.
-    md.update(hPrev);
-    // Add nonce.
-    byte[] noncebytes = ByteBuffer.allocate(Long.BYTES).putLong(this.nonce).array();
-    byte[] hash = md.digest();
-    return hash;
-  } // computeHash()
+  public byte[] computeHash(long nonce) {
+    try {
+      MessageDigest md = MessageDigest.getInstance("sha-256");
+      // Add number in chain.
+      byte[] numInChainbytes = ByteBuffer.allocate(Integer.BYTES).putInt(this.numInChain).array();
+      md.update(numInChainbytes);
+      // Add transaction data.
+      md.update(this.tran.getSource().getBytes());
+      md.update(this.tran.getTarget().getBytes());
+      byte[] transAmt = ByteBuffer.allocate(Integer.BYTES).putInt(this.tran.getAmount()).array();
+      md.update(transAmt);
+      // Add previous hash.
+      if (this.hPrev != null) {
+        md.update(hPrev.getBytes());
+      } // if
+      // Add nonce.
+      byte[] noncebytes = ByteBuffer.allocate(Long.BYTES).putLong(nonce).array();
+      md.update(noncebytes);
+      byte[] hash = md.digest();
+      return hash;
+    } catch (NoSuchAlgorithmException e) {
+      System.err.println("No such algorithm.");
+      return null;
+    } // try/catch
+  } // computeHash() 
 
   // +---------+-----------------------------------------------------
   // | Methods |
@@ -108,7 +128,7 @@ public class Block {
    * @return the transaction.
    */
   public Transaction getTransaction() {
-    return new Transaction("Here", "There", 0); // STUB
+    return this.tran;
   } // getTransaction()
 
   /**
@@ -144,16 +164,27 @@ public class Block {
    * @return a string representation of the block.
    */
   public String toString() {
-    return "";  // STUB
+    if (this.tran.getSource().equals("")) {
+      return("Block " + this.numInChain + " (Transaction: [Deposit, Target: " 
+              + this.tran.getTarget() + ", Amount: " + this.tran.getAmount()
+              + "], Nonce: " + this.nonce + ", prevHash: " + this.hPrev
+              + ", hash: " + this.hCurr + ")");
+    } else {
+      return("Block " + this.numInChain + " (Transaction: [Source : " + this.tran.getSource() 
+              + ", Target: " + this.tran.getTarget() + "], Amount: " + this.tran.getAmount()
+              + ", Nonce: " + this.nonce + ", prevHash: " + this.hPrev
+              + ", hash: " + this.hCurr + ")");
+    } // if/else
   } // toString()
 
   public long mine(HashValidator check) {
     for (long nonce = 0; nonce < Long.MAX_VALUE; nonce++) {
-      computeHash();
-      if (HashValidator.isValid(this.hCurr) == true) {
-        return nonce;
+      Hash potential = new Hash(computeHash(nonce));
+      if (check.isValid(potential) == true) {
+        this.hCurr = potential;
+        break;
       } // if
     } // for
+    return nonce;
   } // mine(HashValidator)
-
 } // class Block
