@@ -10,262 +10,272 @@ import java.util.NoSuchElementException;
  * @author Samuel A. Rebelsky
  */
 public class BlockChain implements Iterable<Transaction> {
-    // +--------+------------------------------------------------------
-    // | Fields |
-    // +--------+
+  // +--------+------------------------------------------------------
+  // | Fields |
+  // +--------+
+
+  /**
+   * The head (first node) of the blockchain.
+   */
+  private Node head;
+
+  /**
+   * The tail (last node) of the blockchain.
+   */
+  private Node tail;
+
+  /**
+   * The size of the blockchain.
+   */
+  private int size;
+
+  /**
+   * The validator used for mining and checking hashes.
+   */
+  private final HashValidator validator;
+
+  // +--------------+------------------------------------------------
+  // | Constructors |
+  // +--------------+
+
+  /**
+   * Create a new blockchain using a validator to check elements.
+   *
+   * @param evalidator The validator used to check elements.
+   */
+  public BlockChain(HashValidator evalidator) {
+    this.validator = evalidator;
+    // Create the initial block with a deposit.
+    Transaction genesisTransaction = new Transaction("", "", 0);
+    Block genesisBlock = new Block(0, genesisTransaction, new Hash(new byte[0]), evalidator);
+    this.head = this.tail = new Node(genesisBlock);
+    this.size = 1;
+  } // BlockChain ()
+
+  // +---------+-----------------------------------------------------
+  // | Helpers |
+  // +---------+
+
+  /**
+   * A node class for the linked list structure.
+   */
+  private static class Node {
+    /**
+     * Block.
+     */
+    Block block;
+    /**
+     * Node next.
+     */
+    Node next;
 
     /**
-     * The head (first node) of the blockchain.
+     * Node (Block block).
+     * @param nblock
      */
-    private Node head;
+    Node(Block nblock) {
+      this.block = nblock;
+    } // Node
+  } // Node
 
-    /**
-     * The tail (last node) of the blockchain.
-     */
-    private Node tail;
+  // +---------+-----------------------------------------------------
+  // | Methods |
+  // +---------+
 
-    /**
-     * The size of the blockchain.
-     */
-    private int size;
+  /**
+   * Mine for a new valid block for the end of the chain, returning that block.
+   *
+   * @param transaction The transaction that goes in the block.
+   * @return a new block with correct number, hashes, and such.
+   */
+  public Block mine(Transaction transaction) {
+    return new Block(size, transaction, tail.block.getHash(), validator);
+  } // mine ()
 
-    /**
-     * The validator used for mining and checking hashes.
-     */
-    private final HashValidator validator;
+  /**
+   * Get the number of blocks currently in the chain.
+   *
+   * @return the number of blocks in the chain, including the initial block.
+   */
+  public int getSize() {
+    return size;
+  } // getSize()
 
-    // +--------------+------------------------------------------------
-    // | Constructors |
-    // +--------------+
+  /**
+   * Add a block to the end of the chain.
+   *
+   * @param blk The block to add to the end of the chain.
+   * @throws IllegalArgumentException if the block is invalid.
+   */
+  public void append(Block blk) {
+    if (!blk.getPrevHash().equals(tail.block.getHash())) {
+      throw new IllegalArgumentException("Invalid previous hash in block.");
+    } // if loop
+    if (!validator.isValid(blk.getHash())) {
+      throw new IllegalArgumentException("Invalid hash for block.");
+    } // if loop
+    Node newNode = new Node(blk);
+    tail.next = newNode;
+    tail = newNode;
+    size++;
+  } // append()
 
-    /**
-     * Create a new blockchain using a validator to check elements.
-     *
-     * @param validator The validator used to check elements.
-     */
-    public BlockChain(HashValidator validator) {
-        this.validator = validator;
-        // Create the initial block with a deposit.
-        Transaction genesisTransaction = new Transaction("", "", 0);
-        Block genesisBlock = new Block(0, genesisTransaction, new Hash(new byte[0]), validator);
-        this.head = this.tail = new Node(genesisBlock);
-        this.size = 1;
-    }
+  /**
+   * Attempt to remove the last block from the chain.
+   *
+   * @return false if the chain has only one block or true otherwise.
+   */
+  public boolean removeLast() {
+    if (head == tail) {
+      return false; // Cannot remove the genesis block.
+    } // end of if
+    Node current = head;
+    while (current.next != tail) {
+      current = current.next;
+    } // while
+    current.next = null;
+    tail = current;
+    size--;
+    return true;
+  } // removeLast()
 
-    // +---------+-----------------------------------------------------
-    // | Helpers |
-    // +---------+
+  /**
+   * Get the hash of the last block in the chain.
+   *
+   * @return the hash of the last block in the chain.
+   */
+  public Hash getHash() {
+    return tail.block.getHash();
+  } // getHash()
 
-    /**
-     * A node class for the linked list structure.
-     */
-    private static class Node {
-        Block block;
-        Node next;
+  /**
+   * Determine if the blockchain is correct.
+   *
+   * @return true if the blockchain is valid; false otherwise.
+   */
+  public boolean isCorrect() {
+    Node current = head;
+    while (current.next != null) {
+      Block currentBlock = current.block;
+      Block nextBlock = current.next.block;
+      if (!nextBlock.getPrevHash().equals(currentBlock.getHash())) {
+        return false;
+      } // end of if
+      if (!validator.isValid(currentBlock.getHash())) {
+        return false;
+      } // end of if
+      current = current.next;
+    } // end of while
+    return true;
+  } // isCorrect()
 
-        Node(Block block) {
-            this.block = block;
-        }
-    }
+  /**
+   * Check if the blockchain is correct. Throws an exception if not.
+   *
+   * @throws Exception if the blockchain is invalid.
+   */
+  public void check() throws Exception {
+    if (!isCorrect()) {
+      throw new Exception("Blockchain is invalid.");
+    } // end if
+  } // check()
 
-    // +---------+-----------------------------------------------------
-    // | Methods |
-    // +---------+
+  /**
+   * Return an iterator of all the people who participated in the system.
+   *
+   * @return an iterator of all the people in the system.
+   */
+  public Iterator<String> users() {
+    return new Iterator<>() {
+      Node current = head;
 
-    /**
-     * Mine for a new valid block for the end of the chain, returning that block.
-     *
-     * @param transaction The transaction that goes in the block.
-     * @return a new block with correct number, hashes, and such.
-     */
-    public Block mine(Transaction transaction) {
-        return new Block(size, transaction, tail.block.getHash(), validator);
-    }
+      @Override
+      public boolean hasNext() {
+        return current != null;
+      } // hasNext()
 
-    /**
-     * Get the number of blocks currently in the chain.
-     *
-     * @return the number of blocks in the chain, including the initial block.
-     */
-    public int getSize() {
-        return size;
-    }
+      @Override
+      public String next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        } // end of if
+        Transaction t = current.block.getTransaction();
+        current = current.next;
+        return t.getTarget();
+      } // next()
+    };
+  } // end of Iterator
 
-    /**
-     * Add a block to the end of the chain.
-     *
-     * @param blk The block to add to the end of the chain.
-     * @throws IllegalArgumentException if the block is invalid.
-     */
-    public void append(Block blk) {
-        if (!blk.getPrevHash().equals(tail.block.getHash())) {
-            throw new IllegalArgumentException("Invalid previous hash in block.");
-        }
-        if (!validator.isValid(blk.getHash())) {
-            throw new IllegalArgumentException("Invalid hash for block.");
-        }
-        Node newNode = new Node(blk);
-        tail.next = newNode;
-        tail = newNode;
-        size++;
-    }
+  /**
+   * Find one user's balance.
+   *
+   * @param user The user whose balance we want to find.
+   * @return that user's balance (or 0, if the user is not in the system).
+   */
+  public int balance(String user) {
+    int balance = 0;
+    Node current = head;
+    while (current != null) {
+      Transaction t = current.block.getTransaction();
+      if (t.getTarget().equals(user)) {
+        balance += t.getAmount();
+      } else if (t.getSource().equals(user)) {
+        balance -= t.getAmount();
+      } // end of if
+      current = current.next;
+    } // end of while
+    return balance;
+  } // balance()
 
-    /**
-     * Attempt to remove the last block from the chain.
-     *
-     * @return false if the chain has only one block or true otherwise.
-     */
-    public boolean removeLast() {
-        if (head == tail) {
-            return false; // Cannot remove the genesis block.
-        }
-        Node current = head;
-        while (current.next != tail) {
-            current = current.next;
-        }
-        current.next = null;
-        tail = current;
-        size--;
-        return true;
-    }
+  /**
+   * Get an iterator for all the blocks in the chain.
+   *
+   * @return an iterator for all the blocks in the chain.
+   */
+  public Iterator<Block> blocks() {
+    return new Iterator<>() {
+      Node current = head;
 
-    /**
-     * Get the hash of the last block in the chain.
-     *
-     * @return the hash of the last block in the chain.
-     */
-    public Hash getHash() {
-        return tail.block.getHash();
-    }
+      @Override
+      public boolean hasNext() {
+        return current != null;
+      } // hasNext()
 
-    /**
-     * Determine if the blockchain is correct.
-     *
-     * @return true if the blockchain is valid; false otherwise.
-     */
-    public boolean isCorrect() {
-        Node current = head;
-        while (current.next != null) {
-            Block currentBlock = current.block;
-            Block nextBlock = current.next.block;
-            if (!nextBlock.getPrevHash().equals(currentBlock.getHash())) {
-                return false;
-            }
-            if (!validator.isValid(currentBlock.getHash())) {
-                return false;
-            }
-            current = current.next;
-        }
-        return true;
-    }
+      @Override
+      public Block next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        } // end of if
+        Block blk = current.block;
+        current = current.next;
+        return blk;
+      } // next()
+    };
+  } // end
 
-    /**
-     * Check if the blockchain is correct. Throws an exception if not.
-     *
-     * @throws Exception if the blockchain is invalid.
-     */
-    public void check() throws Exception {
-        if (!isCorrect()) {
-            throw new Exception("Blockchain is invalid.");
-        }
-    }
+  /**
+   * Get an iterator for all the transactions in the chain.
+   *
+   * @return an iterator for all the transactions in the chain.
+   */
+  public Iterator<Transaction> iterator() {
+    return new Iterator<>() {
+      Node current = head;
 
-    /**
-     * Return an iterator of all the people who participated in the system.
-     *
-     * @return an iterator of all the people in the system.
-     */
-    public Iterator<String> users() {
-        return new Iterator<>() {
-            Node current = head;
+      @Override
+      public boolean hasNext() {
+        return current != null;
+      } // hasNext()
 
-            @Override
-            public boolean hasNext() {
-                return current != null;
-            }
-
-            @Override
-            public String next() {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
-                Transaction t = current.block.getTransaction();
-                current = current.next;
-                return t.getTarget();
-            }
-        };
-    }
-
-    /**
-     * Find one user's balance.
-     *
-     * @param user The user whose balance we want to find.
-     * @return that user's balance (or 0, if the user is not in the system).
-     */
-    public int balance(String user) {
-        int balance = 0;
-        Node current = head;
-        while (current != null) {
-            Transaction t = current.block.getTransaction();
-            if (t.getTarget().equals(user)) {
-                balance += t.getAmount();
-            } else if (t.getSource().equals(user)) {
-                balance -= t.getAmount();
-            }
-            current = current.next;
-        }
-        return balance;
-    }
-
-    /**
-     * Get an iterator for all the blocks in the chain.
-     *
-     * @return an iterator for all the blocks in the chain.
-     */
-    public Iterator<Block> blocks() {
-        return new Iterator<>() {
-            Node current = head;
-
-            @Override
-            public boolean hasNext() {
-                return current != null;
-            }
-
-            @Override
-            public Block next() {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
-                Block blk = current.block;
-                current = current.next;
-                return blk;
-            }
-        };
-    }
-
-    /**
-     * Get an iterator for all the transactions in the chain.
-     *
-     * @return an iterator for all the transactions in the chain.
-     */
-    public Iterator<Transaction> iterator() {
-        return new Iterator<>() {
-            Node current = head;
-
-            @Override
-            public boolean hasNext() {
-                return current != null;
-            }
-
-            @Override
-            public Transaction next() {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
-                Transaction t = current.block.getTransaction();
-                current = current.next;
-                return t;
-            }
-        };
-    }
+      @Override
+      public Transaction next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        } // end of ig
+        Transaction t = current.block.getTransaction();
+        current = current.next;
+        return t;
+      } //
+    };
+  } //
 } // class BlockChain
